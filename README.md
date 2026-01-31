@@ -1,2 +1,2 @@
-# Bording-House-Management-System-Frontend
+# Boarding-House-Management-System-Frontend
 Halo FrontEnd
