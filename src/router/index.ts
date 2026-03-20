@@ -1,9 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '../stores/auth.ts'
-import GuestPage    from '../components/GuestPage.vue'
-import LoginForm    from '../components/LoginForm.vue'
-import RegisterForm from '../components/RegisterForm.vue'
-import HomePage     from '../components/HomePage.vue'
+import GuestPage    from '../views/auth/GuestPage.vue'
+import LoginForm    from '../views/auth/LoginView.vue'
+import RegisterForm from '../views/auth/RegisterView.vue'
+import HomePage     from '../views/auth/HomePage.vue'
 import { useAuthStore } from '../stores/auth'
 
 
@@ -17,6 +16,12 @@ const router = createRouter({
     { path: '/home',     name: 'Home',     component: HomePage,     meta: { requiresAuth: true } },
     { path: '/:pathMatch(.*)*', redirect: '/' },
     // ── Public Routes ──
+    { 
+      path: '/',    
+      name: 'GuestPage',    
+      component: () => import('../views/auth/GuestPage.vue'), // Path: views/auth/
+      meta: { requiresAuth: false } 
+    },
     { 
       path: '/login',    
       name: 'Login',    
@@ -61,8 +66,8 @@ router.beforeEach((to) => {
   }
 
   // Prevent logged-in users from seeing login/register pages
-  if (isLoggedIn && (to.path === '/login' || to.path === '/register')) {
-    return { path: '/home' }
+  if (isLoggedIn && (to.path === '/login' || to.path === '/register' || to.path === '/')) {
+    return { path: '/' }
   }
 })
 
