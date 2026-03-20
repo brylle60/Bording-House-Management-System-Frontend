@@ -1,9 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '../stores/auth.ts'
-import GuestPage    from '../components/GuestPage.vue'
-import LoginForm    from '../components/LoginForm.vue'
-import RegisterForm from '../components/RegisterForm.vue'
-import HomePage     from '../components/HomePage.vue'
+import GuestPage    from '../views/auth/GuestPage.vue'
+import LoginForm    from '../views/auth/LoginView.vue'
+import RegisterForm from '../views/auth/RegisterView.vue'
+import HomePage     from '../views/auth/HomePage.vue'
 import { useAuthStore } from '../stores/auth'
 
 

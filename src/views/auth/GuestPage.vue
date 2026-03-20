@@ -379,11 +379,11 @@ cursor:pointer;
 }
 #designContainer{
     position: absolute; 
-    top: -150px;       
-    left: -10px;
+    top: -100px;       
+    left:-20px;
     display: flex;
     align-items: center;
-    width: 130px;
+    width: 500px;
     height: 600px;
 }
 #description2{
@@ -405,7 +405,7 @@ cursor:pointer;
 }
 .designGuestPage{
     width:400px; 
-    height:240px; 
+    height:300px; 
 }
 
 
