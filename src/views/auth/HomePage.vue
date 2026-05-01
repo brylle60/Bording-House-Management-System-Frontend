@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { useAuthStore }     from '../../stores/auth'
+import { useAuthStore } from '../../stores/auth'
 import logo from '../../assets/Logo.png'
-
 
 const router = useRouter()
 const auth   = useAuthStore()
 
 function logout() {
   auth.logout()
-  router.push('/login')
+  router.push('/')
 }
 </script>
 
