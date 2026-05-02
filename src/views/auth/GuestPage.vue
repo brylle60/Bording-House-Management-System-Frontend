@@ -39,16 +39,13 @@
             </h2>
         </div>
 
+        <!-- Search Bar for the Guest Page -->
         <div id = "searchContainer">
             <div id = "searchBar">
                 <span id="searchIcon">&#128269;</span>
                 <div id = "searchDivider"></div>
-                <select id="priceDropdown">
-                    <option>Any price</option>
-                    <option>₱1,000 - ₱3,000</option>
-                    <option>₱3,000 - ₱5,000</option>
-                    <option>₱5,000+</option>
-                </select>
+                <input id="priceDropdown" placeholder="Select price range">
+                </input>
                 <button id="searchButton">Search</button>
             </div>
         </div>
@@ -67,7 +64,7 @@
                     </button>
                 </div>
 
-
+        <!-- Filtering Room based on Availability --> 
                 <div class="filterGroup">
                     <span class="filterLabel">Status:</span>
                         <button 
