@@ -6,9 +6,9 @@
 // ── Const Objects (replacing enums) ─────────────────────────
 
 export const Role = {
-  ADMIN:  'ADMIN',
-  STAFF:  'STAFF',
-  TENANT: 'TENANT',
+  ADMIN:  'ROLE_ADMIN',
+  STAFF:  'ROLE_STAFF',
+  TENANT: 'ROLE_TENANT',
 } as const
 export type Role = typeof Role[keyof typeof Role]
 
