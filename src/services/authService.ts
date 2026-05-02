@@ -4,10 +4,19 @@
 // ============================================================
 
 import { BaseService } from './BaseService'
-import type { LoginCredentials, LoginResponse, RegisterPayload } from '../models'
+import type { LoginCredentials, LoginResponse as BaseLoginResponse, RegisterPayload } from '../models'
+import type { Role } from '../models'
 
-// Re-export types so views can import them directly from authService
-export type { LoginCredentials, LoginResponse, RegisterPayload }
+// Extend the base LoginResponse to include role, id, and email
+// which the backend returns but the base type didn't declare.
+export type LoginResponse = BaseLoginResponse & {
+  id?:    number
+  email?: string
+  role?:  Role
+}
+
+// Re-export other types so views can import them directly from authService
+export type { LoginCredentials, RegisterPayload }
 
 class AuthService extends BaseService {
   constructor() { super('/auth') }

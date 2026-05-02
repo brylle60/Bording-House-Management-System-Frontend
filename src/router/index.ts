@@ -25,24 +25,36 @@ const router = createRouter({
       component: () => import('../views/auth/HomePage.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/admin',
+      name: 'Admin',
+      component: () => import('../views/auth/AdminPage.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true },
+    },
 
     // ── Fallback ──
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 })
 
-// Navigation Guard
+// ── Navigation Guard ──────────────────────────────────────────────────────────
 router.beforeEach((to) => {
-  const auth = useAuthStore()
+  const auth       = useAuthStore()
   const isLoggedIn = !!auth.isAuthenticated
+  const isAdmin    = auth.isAdmin
 
-  // Redirect unauthenticated users away from protected pages
+  // 1. Redirect logged-in users away from guest page based on their role
+  if (isLoggedIn && to.path === '/') {
+    return isAdmin ? { path: '/admin' } : { path: '/home' }
+  }
+
+  // 2. Unauthenticated users can only access protected routes after login
   if (to.meta.requiresAuth && !isLoggedIn) {
     return { path: '/' }
   }
 
-  // Redirect logged-in users away from the guest page to home
-  if (isLoggedIn && to.path === '/') {
+  // 3. Block non-admins from accessing /admin directly
+  if (to.meta.requiresAdmin && !isAdmin) {
     return { path: '/home' }
   }
 })

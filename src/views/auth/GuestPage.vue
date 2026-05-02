@@ -39,9 +39,10 @@ const loading = ref(true)
 
 async function fetchRooms() {
   try {
-    const res = await fetch('/api/rooms/available')
+    const res = await fetch('/api/rooms/public/vacant')
     if (!res.ok) throw new Error('API error')
-    rooms.value = await res.json()
+    const json = await res.json()
+    rooms.value = Array.isArray(json.data) ? json.data : []
   } catch {
     rooms.value = [
       {
@@ -237,9 +238,27 @@ const handleLogin = async () => {
   loginError.value = ''; loginSuccess.value = ''; loginLoading.value = true
   try {
     const data: LoginResponse = await authService.login(loginForm)
-    auth.login({ username: data.username, access_token: data.access_token, refresh_token: data.refresh_token })
+
+    // 🔍 DEBUG — remove these after fixing
+    console.log('data from API:', JSON.stringify(data))
+
+    auth.login({
+      username:      data.username,
+      access_token:  data.access_token,
+      refresh_token: data.refresh_token,
+      role:          data.role,
+      id:            data.id,
+      email:         data.email,
+    })
+
+    // 🔍 DEBUG — remove these after fixing
+    console.log('isAdmin after login:', auth.isAdmin)
+    console.log('user role in store:', auth.user?.role)
+
     loginSuccess.value = `Welcome back, ${data.username}!`
-    setTimeout(() => { closeLoginModal(); router.push('/home') }, 1000)
+    const redirect = auth.isAdmin ? '/admin' : '/home'
+    console.log('redirecting to:', redirect) // 🔍 DEBUG
+    setTimeout(() => { closeLoginModal(); router.push(redirect) }, 1000)
   } catch (err: any) {
     loginError.value = err?.message || 'Invalid credentials.'
   } finally {
