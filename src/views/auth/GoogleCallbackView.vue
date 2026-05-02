@@ -16,7 +16,7 @@ onMounted(() => {
     auth.login({ username, access_token, refresh_token })
     router.replace('/home')
   } else {
-    router.replace('/login?error=google_failed')
+    router.replace('/?error=google_failed')
   }
 })
 </script>
