@@ -1,73 +1,61 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import GuestPage    from '../views/auth/GuestPage.vue'
-import LoginForm    from '../views/auth/LoginView.vue'
-import RegisterForm from '../views/auth/RegisterView.vue'
-import HomePage     from '../views/auth/HomePage.vue'
 import { useAuthStore } from '../stores/auth'
-
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    // Updated the Path for Guest para siya first makita
-    { path: '/',         name: 'Guest',    component: GuestPage }, 
-    { path: '/login',    name: 'Login',    component: LoginForm,    meta: { guest: true } },
-    { path: '/register', name: 'Register', component: RegisterForm, meta: { guest: true } },
-    { path: '/home',     name: 'Home',     component: HomePage,     meta: { requiresAuth: true } },
-    { path: '/:pathMatch(.*)*', redirect: '/' },
     // ── Public Routes ──
-    { 
-      path: '/',    
-      name: 'GuestPage',    
-      component: () => import('../views/auth/GuestPage.vue'), // Path: views/auth/
-      meta: { requiresAuth: false } 
+    {
+      path: '/',
+      name: 'Guest',
+      component: () => import('../views/auth/GuestPage.vue'),
+      meta: { requiresAuth: false },
     },
-    { 
-      path: '/login',    
-      name: 'Login',    
-      component: () => import('../views/auth/LoginView.vue'), // Path: views/auth/
-      meta: { requiresAuth: false } 
-    },
-    { 
-      path: '/register', 
-      name: 'Register', 
-      component: () => import('../views/auth/RegisterView.vue'), // Path: views/auth/
-      meta: { requiresAuth: false } 
-    },
-    { 
-      path: '/auth/google/callback', 
+    {
+      path: '/auth/google/callback',
       name: 'GoogleCallback',
-      component: () => import('../views/auth/GoogleCallbackView.vue'), // Path: views/auth/
-      meta: { requiresAuth: false } 
+      component: () => import('../views/auth/GoogleCallbackView.vue'),
+      meta: { requiresAuth: false },
     },
 
     // ── Protected Routes ──
-    { 
-      path: '/home', 
-      name: 'Home', 
-      component: () => import('../views/auth/HomePage.vue'), // Path: views/auth/
-      meta: { requiresAuth: true } 
+    {
+      path: '/home',
+      name: 'Home',
+      component: () => import('../views/auth/HomePage.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/admin',
+      name: 'Admin',
+      component: () => import('../views/auth/AdminPage.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true },
     },
 
-    // ── Fallbacks ──
-    { path: '/', redirect: '/home' },
-    { path: '/:pathMatch(.*)*', redirect: '/home' },
+    // ── Fallback ──
+    { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 })
 
-// Navigation Guard
+// ── Navigation Guard ──────────────────────────────────────────────────────────
 router.beforeEach((to) => {
-  const auth = useAuthStore()
+  const auth       = useAuthStore()
   const isLoggedIn = !!auth.isAuthenticated
+  const isAdmin    = auth.isAdmin
 
-  // Redirect to login if page requires auth and user is not logged in
-  if (to.meta.requiresAuth && !isLoggedIn) {
-    return { path: '/login' }
+  // 1. Redirect logged-in users away from guest page based on their role
+  if (isLoggedIn && to.path === '/') {
+    return isAdmin ? { path: '/admin' } : { path: '/home' }
   }
 
-  // Prevent logged-in users from seeing login/register pages
-  if (isLoggedIn && (to.path === '/login' || to.path === '/register' || to.path === '/')) {
+  // 2. Unauthenticated users can only access protected routes after login
+  if (to.meta.requiresAuth && !isLoggedIn) {
     return { path: '/' }
+  }
+
+  // 3. Block non-admins from accessing /admin directly
+  if (to.meta.requiresAdmin && !isAdmin) {
+    return { path: '/home' }
   }
 })
 

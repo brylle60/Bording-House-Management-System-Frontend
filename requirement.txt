@@ -9,14 +9,16 @@ VITE_API_URL=
 VITE_FRONTEND_URL=
 
 # App metadata (optional but handy)
-VITE_APP_NAME="Boarding House Management System"
+VITE_APP_NAME="ResidEase"
 VITE_APP_ENV=development
 
 VITE_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 
 
 npm install
+npm audit fix
 npm install vue-router
+npm install axios
 npm install pinia
 
 npm run dev

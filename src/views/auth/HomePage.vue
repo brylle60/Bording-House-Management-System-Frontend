@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { useAuthStore }     from '../../stores/auth'
+import { useAuthStore } from '../../stores/auth'
 import logo from '../../assets/Logo.png'
-
 
 const router = useRouter()
 const auth   = useAuthStore()
 
 function logout() {
   auth.logout()
-  router.push('/login')
+  router.push('/')
 }
 </script>
 
@@ -19,7 +18,7 @@ function logout() {
     <header class="topbar">
       <div class="topbar-brand">
         <img :src="logo" alt="ResidEase" class="brand-logo" />
-        <span class="brand-text">Boarding House Management System</span>
+        <span class="brand-text">ResidEase</span>
       </div>
       <div class="topbar-right">
         <div class="avatar">{{ auth.user?.username?.[0]?.toUpperCase() }}</div>
@@ -41,7 +40,7 @@ function logout() {
       <div class="welcome-card">
         <div class="welcome-icon">🏠</div>
         <h1>Welcome back, <span class="highlight">{{ auth.user?.username }}</span>!</h1>
-        <p>You're logged in to the Boarding House Management System.</p>
+        <p>You're logged in to ResidEase.</p>
       </div>
 
       <!-- Quick nav cards -->
