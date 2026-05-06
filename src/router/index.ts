@@ -38,6 +38,12 @@ const router = createRouter({
       component: () => import('../views/auth/TenantPage.vue'),
       meta: { requiresAuth: true, requiresTenant: true },
     },
+    {
+      path: '/manager',
+      name: 'Manager',
+      component: () => import('../views/auth/ManagerPage.vue'),
+      meta: { requiresAuth: true, requiresManager: true },
+    },
 
     // ── Fallback ──
     { path: '/:pathMatch(.*)*', redirect: '/' },
@@ -46,6 +52,21 @@ const router = createRouter({
 
 // ── Navigation Guard ──────────────────────────────────────────────────────────
 router.beforeEach((to) => {
+  const auth       = useAuthStore()
+  const isLoggedIn = auth.isAuthenticated  
+  const isAdmin    = auth.isAdmin          
+  const isManager  = auth.isManager        
+
+  // 1. Redirect logged-in users away from guest page based on their role
+  if (isLoggedIn && to.path === '/') {
+    if (isAdmin)   return { path: '/admin' }
+    if (isManager) return { path: '/manager' }
+    return { path: '/home' }
+  }
+
+  // 2. Unauthenticated users can only access protected routes after login
+  if (to.meta.requiresAuth && !isLoggedIn) {
+    return { path: '/' }
   const auth = useAuthStore()
 
   const isLoggedIn = auth.isAuthenticated
@@ -71,6 +92,10 @@ router.beforeEach((to) => {
 
   // Block non-admins from /admin
   if (to.meta.requiresAdmin && !isAdmin) {
+    return isManager ? { path: '/manager' } : { path: '/home' }
+  }
+
+  if (to.meta.requiresManager && !(isAdmin || isManager)) {
     return isTenant ? { path: '/tenant/dashboard' } : { path: '/' }
   }
 

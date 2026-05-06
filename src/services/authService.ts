@@ -1,21 +1,14 @@
-// ============================================================
-//  ResidEase — AuthService  (extends BaseService)
-//  POST /api/auth/login · register · forgot-password · refresh
-// ============================================================
-
 import { BaseService } from './BaseService'
 import type { LoginCredentials, LoginResponse as BaseLoginResponse, RegisterPayload } from '../models'
 import type { Role } from '../models'
 
-// Extend the base LoginResponse to include role, id, and email
-// which the backend returns but the base type didn't declare.
+// ✅ FIXED: id accepts string (UUID) or number
 export type LoginResponse = BaseLoginResponse & {
-  id?:    number
+  id?:    string | number
   email?: string
   role?:  Role
 }
 
-// Re-export other types so views can import them directly from authService
 export type { LoginCredentials, RegisterPayload }
 
 class AuthService extends BaseService {

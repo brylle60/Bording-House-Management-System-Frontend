@@ -267,6 +267,8 @@ const handleLogin = async () => {
       router.push(redirect) 
     }, 1000)
 
+    const redirect = auth.isAdmin ? '/admin' : auth.isManager ? '/manager' : '/home'
+    setTimeout(() => { closeLoginModal(); router.push(redirect) }, 1000)
   } catch (err: any) {
     loginError.value = err?.message || 'Invalid credentials.'
   } finally {

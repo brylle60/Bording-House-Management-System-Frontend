@@ -7,6 +7,7 @@
 
 export const Role = {
   ADMIN:  'ROLE_ADMIN',
+  MANAGER:'ROLE_MANAGER',
   STAFF:  'ROLE_STAFF',
   TENANT: 'ROLE_TENANT',
 } as const
@@ -161,7 +162,8 @@ export class User implements IUser {
 
   get fullLabel() { return `${this.username} (${this.role})` }
   isAdmin()       { return this.role === Role.ADMIN  }
-  isStaff()       { return this.role === Role.STAFF  }
+  isManager()     { return this.role === Role.MANAGER }
+  isStaff()       { return this.role === Role.STAFF || this.role === Role.MANAGER }
   isTenant()      { return this.role === Role.TENANT }
   getInitials()   { return this.username.slice(0, 2).toUpperCase() }
 }

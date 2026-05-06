@@ -3,9 +3,9 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 
-import AdminSidebar from '@/components/admin_layout/AdminSidebar.vue'
-import AdminTopbar from '@/components/admin_layout/AdminTopbar.vue'
-import AdminDashboard from '@/components/admin_layout/AdminDashboard.vue'
+import DashboardSidebar from '@/components/dashboard_layout/DashboardSidebar.vue'
+import DashboardTopbar from '@/components/dashboard_layout/DashboardTopbar.vue'
+import DashboardDashboard from '@/components/dashboard_layout/DashboardDashboard.vue'
 import { adminService, type AdminRole, type AdminStatsResponse, type AdminStatus, type AdminUserSummary } from '../../services/adminService'
 
 type AdminUserRow = {
@@ -172,26 +172,28 @@ onMounted(() => {
 
 <template>
   <div class="admin-shell">
-    <AdminSidebar
+    <DashboardSidebar
       :active-section="activeSection"
       :sidebar-open="sidebarOpen"
       :username="auth.user?.username"
+      variant="admin"
       @navigate="navigate"
       @logout="handleLogout"
     />
 
     <div class="main-area">
-      <AdminTopbar
+      <DashboardTopbar
         :active-section="activeSection"
         :username="auth.user?.username"
         :notif-count="3"
+        variant="admin"
         @toggle-sidebar="sidebarOpen = !sidebarOpen"
         @export-logs="onExportLogs"
       />
 
       <main class="content-area">
         <div v-if="error" class="error-banner">{{ error }}</div>
-        <AdminDashboard
+        <DashboardDashboard
           v-if="activeSection === 'dashboard'"
           variant="dashboard"
           :users="users"
@@ -206,7 +208,7 @@ onMounted(() => {
           @change-role="onChangeRole"
         />
 
-        <AdminDashboard
+        <DashboardDashboard
           v-else-if="activeSection === 'users'"
           variant="users-full"
           :users="users"
