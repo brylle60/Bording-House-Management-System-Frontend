@@ -11,10 +11,22 @@ onMounted(() => {
   const access_token  = route.query.access_token  as string
   const refresh_token = route.query.refresh_token as string
   const username      = route.query.username      as string
+  const role          = route.query.role          as string | undefined
+  const idRaw         = route.query.id            as string | undefined
+  const email         = route.query.email         as string | undefined
 
   if (access_token && username) {
-    auth.login({ username, access_token, refresh_token })
-    router.replace('/home')
+    const parsedId = idRaw ? Number(idRaw) : undefined
+    auth.login({
+      username,
+      access_token,
+      refresh_token,
+      role,
+      id: Number.isNaN(parsedId) ? undefined : parsedId,
+      email,
+    })
+    const redirect = auth.isAdmin.value ? '/admin' : auth.isManager.value ? '/manager' : '/home'
+    router.replace(redirect)
   } else {
     router.replace('/?error=google_failed')
   }

@@ -1,13 +1,20 @@
-// ============================================================
-//  ResidEase — Auth Store  (Pinia + OOP)
-//  Session value object handles all localStorage logic.
-// ============================================================
-
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { User, Role } from '../models'
 
-// ── Session Value Object ─────────────────────────────────────
+function normalizeRole(role?: string): Role {
+  if (!role || typeof role !== 'string') return Role.TENANT
+
+  const upper = role.toUpperCase()
+  if (upper === Role.ADMIN   || upper === 'ADMIN'   || upper === 'ROLE_ADMIN')   return Role.ADMIN
+  if (upper === Role.MANAGER || upper === 'MANAGER' || upper === 'ROLE_MANAGER') return Role.MANAGER
+  if (upper === Role.STAFF   || upper === 'STAFF'   || upper === 'ROLE_STAFF'
+   || upper === 'ROLE_MAINTENANCE' || upper === 'MAINTENANCE')                   return Role.STAFF
+  if (upper === Role.TENANT  || upper === 'TENANT'  || upper === 'ROLE_TENANT')  return Role.TENANT
+
+  return Role.TENANT
+}
+
 class Session {
   readonly accessToken:  string
   readonly refreshToken: string
@@ -39,13 +46,12 @@ class Session {
     if (!at || !raw) return null
     try {
       const u    = JSON.parse(raw)
-      const user = new User(u.id ?? 0, u.username, u.email ?? '', u.role ?? Role.TENANT, u.isActive ?? true)
+      const user = new User(u.id ?? 0, u.username, u.email ?? '', normalizeRole(u.role), u.isActive ?? true)
       return new Session(at, rt ?? '', user)
     } catch { return null }
   }
 }
 
-// ── Pinia Store ──────────────────────────────────────────────
 export const useAuthStore = defineStore('auth', () => {
   const session = ref<Session | null>(Session.restore())
 
@@ -53,25 +59,42 @@ export const useAuthStore = defineStore('auth', () => {
   const user            = computed(() => session.value?.user ?? null)
   const token           = computed(() => session.value?.accessToken  ?? null)
   const refreshToken    = computed(() => session.value?.refreshToken ?? null)
-  const isAdmin         = computed(() => user.value?.isAdmin()  ?? false)
-  const isStaff         = computed(() => user.value?.isStaff()  ?? false)
-  const isTenant        = computed(() => user.value?.isTenant() ?? false)
+  const isAdmin         = computed(() => user.value?.isAdmin()   ?? false)
+  const isManager       = computed(() => user.value?.isManager() ?? false)
+  const isStaff         = computed(() => user.value?.isStaff()   ?? false)
+  const isTenant        = computed(() => user.value?.isTenant()  ?? false)
 
-  function login(payload: { username: string; access_token: string; refresh_token: string; id?: number; email?: string; role?: Role }): void {
-    const newUser = new User(payload.id ?? 0, payload.username, payload.email ?? '', payload.role ?? Role.TENANT, true)
-    const s       = new Session(payload.access_token, payload.refresh_token, newUser)
-    s.save(); session.value = s
+  function login(payload: {
+    username:      string
+    access_token:  string
+    refresh_token: string
+    id?:           string | number
+    email?:        string
+    role?:         Role | string
+  }): void {
+    const newUser = new User(
+      (payload.id ?? 0) as unknown as number,  // ✅ cast: backend returns UUID string
+      payload.username,
+      payload.email ?? '',
+      normalizeRole(payload.role),
+      true
+    )
+    const s = new Session(payload.access_token, payload.refresh_token, newUser)
+    s.save()
+    session.value = s
   }
 
   function logout(): void {
-    Session.clear(); session.value = null
+    Session.clear()
+    session.value = null
   }
 
   function updateToken(newAccessToken: string): void {
     if (!session.value) return
     const s = new Session(newAccessToken, session.value.refreshToken, session.value.user)
-    s.save(); session.value = s
+    s.save()
+    session.value = s
   }
 
-  return { isAuthenticated, user, token, refreshToken, isAdmin, isStaff, isTenant, login, logout, updateToken }
+  return { isAuthenticated, user, token, refreshToken, isAdmin, isManager, isStaff, isTenant, login, logout, updateToken }
 })

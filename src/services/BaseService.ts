@@ -18,7 +18,8 @@ export abstract class BaseService {
     // Attach JWT on every request
     this.http.interceptors.request.use((config) => {
       const auth = useAuthStore()
-      if (auth.token) config.headers.Authorization = `Bearer ${auth.token}`
+      const token = auth.token
+      if (token) config.headers.Authorization = `Bearer ${token}`
       return config
     })
 
