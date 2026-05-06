@@ -239,9 +239,6 @@ const handleLogin = async () => {
   try {
     const data: LoginResponse = await authService.login(loginForm)
 
-    // 🔍 DEBUG — remove these after fixing
-    console.log('data from API:', JSON.stringify(data))
-
     auth.login({
       username:      data.username,
       access_token:  data.access_token,
@@ -251,13 +248,8 @@ const handleLogin = async () => {
       email:         data.email,
     })
 
-    // 🔍 DEBUG — remove these after fixing
-    console.log('isAdmin after login:', auth.isAdmin)
-    console.log('user role in store:', auth.user?.role)
-
     loginSuccess.value = `Welcome back, ${data.username}!`
-    const redirect = auth.isAdmin ? '/admin' : '/home'
-    console.log('redirecting to:', redirect) // 🔍 DEBUG
+    const redirect = auth.isAdmin ? '/admin' : auth.isManager ? '/manager' : '/home'
     setTimeout(() => { closeLoginModal(); router.push(redirect) }, 1000)
   } catch (err: any) {
     loginError.value = err?.message || 'Invalid credentials.'
