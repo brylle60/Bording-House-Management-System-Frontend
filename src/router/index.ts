@@ -32,6 +32,13 @@ const router = createRouter({
       meta: { requiresAuth: true, requiresAdmin: true },
     },
 
+    {
+      path: '/tenant/dashboard',
+      name: 'TenantPage',
+      component: () => import('../views/auth/TenantPage.vue'),
+      meta: { requiresAuth: true, requiresTenant: true },
+    },
+
     // ── Fallback ──
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
@@ -39,23 +46,37 @@ const router = createRouter({
 
 // ── Navigation Guard ──────────────────────────────────────────────────────────
 router.beforeEach((to) => {
-  const auth       = useAuthStore()
-  const isLoggedIn = !!auth.isAuthenticated
-  const isAdmin    = auth.isAdmin
+  const auth = useAuthStore()
 
-  // 1. Redirect logged-in users away from guest page based on their role
-  if (isLoggedIn && to.path === '/') {
-    return isAdmin ? { path: '/admin' } : { path: '/home' }
+  const isLoggedIn = auth.isAuthenticated
+  const userRole   = auth.user?.role
+
+  const isAdmin  = userRole === 'ROLE_ADMIN'
+  const isTenant = userRole === 'ROLE_TENANT'
+
+  console.log('Guard - role:', userRole, '| isTenant:', isTenant, '| to:', to.path)
+
+  // Always allow public routes
+  if (!to.meta.requiresAuth) {
+    // ✅ BUT if logged in and going to '/', redirect to their page
+    if (isLoggedIn && to.path === '/') {
+      if (isAdmin)  return { path: '/admin' }
+      if (isTenant) return { path: '/tenant/dashboard' }
+    }
+    return true
   }
 
-  // 2. Unauthenticated users can only access protected routes after login
-  if (to.meta.requiresAuth && !isLoggedIn) {
-    return { path: '/' }
-  }
+  // Not logged in → guest page
+  if (!isLoggedIn) return { path: '/' }
 
-  // 3. Block non-admins from accessing /admin directly
+  // Block non-admins from /admin
   if (to.meta.requiresAdmin && !isAdmin) {
-    return { path: '/home' }
+    return isTenant ? { path: '/tenant/dashboard' } : { path: '/' }
+  }
+
+  // Block non-tenants from /tenant/dashboard
+  if (to.meta.requiresTenant && !isTenant) {
+    return isAdmin ? { path: '/admin' } : { path: '/' }
   }
 })
 

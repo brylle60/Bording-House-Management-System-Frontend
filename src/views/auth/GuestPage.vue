@@ -239,9 +239,6 @@ const handleLogin = async () => {
   try {
     const data: LoginResponse = await authService.login(loginForm)
 
-    // 🔍 DEBUG — remove these after fixing
-    console.log('data from API:', JSON.stringify(data))
-
     auth.login({
       username:      data.username,
       access_token:  data.access_token,
@@ -251,14 +248,25 @@ const handleLogin = async () => {
       email:         data.email,
     })
 
-    // 🔍 DEBUG — remove these after fixing
-    console.log('isAdmin after login:', auth.isAdmin)
-    console.log('user role in store:', auth.user?.role)
+    // 🔍 Add these debug logs
+    console.log('1. raw data.role:', data.role)
+    console.log('2. auth.user:', JSON.stringify(auth.user))
+    console.log('3. auth.user.role:', auth.user?.role)
+    console.log('4. isTenant:', auth.isTenant)
+    console.log('5. isAdmin:', auth.isAdmin)
+    console.log('6. Role.TENANT value:', 'ROLE_TENANT')
+    console.log('7. role === ROLE_TENANT?', auth.user?.role === 'ROLE_TENANT')
+
+    const redirect = auth.isAdmin ? '/admin' : '/tenant/dashboard'
+    console.log('8. redirecting to:', redirect)
 
     loginSuccess.value = `Welcome back, ${data.username}!`
-    const redirect = auth.isAdmin ? '/admin' : '/home'
-    console.log('redirecting to:', redirect) // 🔍 DEBUG
-    setTimeout(() => { closeLoginModal(); router.push(redirect) }, 1000)
+    setTimeout(() => { 
+      closeLoginModal()
+      console.log('9. calling router.push:', redirect)
+      router.push(redirect) 
+    }, 1000)
+
   } catch (err: any) {
     loginError.value = err?.message || 'Invalid credentials.'
   } finally {
