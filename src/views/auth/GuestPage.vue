@@ -257,7 +257,7 @@ const handleLogin = async () => {
     console.log('6. Role.TENANT value:', 'ROLE_TENANT')
     console.log('7. role === ROLE_TENANT?', auth.user?.role === 'ROLE_TENANT')
 
-    const redirect = auth.isAdmin ? '/admin' : '/tenant/dashboard'
+    const redirect = auth.isAdmin ? '/admin' : auth.isManager ? '/manager' : auth.isTenant ? '/tenant/dashboard' : '/home'
     console.log('8. redirecting to:', redirect)
 
     loginSuccess.value = `Welcome back, ${data.username}!`
@@ -266,9 +266,6 @@ const handleLogin = async () => {
       console.log('9. calling router.push:', redirect)
       router.push(redirect) 
     }, 1000)
-
-    const redirect = auth.isAdmin ? '/admin' : auth.isManager ? '/manager' : '/home'
-    setTimeout(() => { closeLoginModal(); router.push(redirect) }, 1000)
   } catch (err: any) {
     loginError.value = err?.message || 'Invalid credentials.'
   } finally {
